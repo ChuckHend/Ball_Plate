@@ -5,22 +5,11 @@
 //and makes appropriate response to return object to a setpoint by
 //actuating two digital servos
 
-//14-Oct-16: added comments, moved parameter tuning to a function
-//20-Oct-16: added controller functionalty (moving setpoints)
-//20-Oct-16: cleaned up comments, consolidated x/y pid gains
-//27-Oct-16: removed acceleration term from PID
-//09-Nov-16: added flag to reset programSelect to 0 after incrementing setpoint
-            // stops in run away effect of incrementing in x or y
-//21-Nov-16: added time to pyprint outut
-//Current TODOs:
-// 1) Optimize PID gain parameters
-// 2) Move self dev velocity/accel to function, or;
-// 3) Make own PID library?
-// 4) Use z to adjust plate if ball is gonna fly off?
-//      bigger z = less pressure
-// 5) rename gain parameters, x and y are now the same
-// 6) update map range of x and y (to more accurate?)
 
+//Current TODOs:
+// 1) utilize z axis on touchscreen
+// 2) Increase map range of touchscreen
+// 3) Clean up everything
 
 #include <SPI.h>
 #include <Wire.h>

@@ -5,12 +5,6 @@
 //and makes appropriate response to return object to a setpoint by
 //actuating two digital servos
 
-
-//Current TODOs:
-// 1) utilize z axis on touchscreen
-// 2) Increase map range of touchscreen
-// 3) Clean up everything
-
 #include <SPI.h>
 #include <Wire.h>
 #include <Servo.h>
@@ -74,8 +68,8 @@ uint16_t x, y;              // for touchscreen variables
 uint8_t z;                  // touchscreen variables
 
 //PID class only used for Proportional and Integral
-PID PIDx(&currX, &outputX, &setPointX, Kp, Ki, 0, DIRECT);//MKI direct, MKII reverse
-PID PIDy(&currY, &outputY, &setPointY, Kp, Ki, 0, DIRECT);//MKI direct, MKII reverse
+PID PIDx(&currX, &outputX, &setPointX, Kp, Ki, 0, DIRECT);
+PID PIDy(&currY, &outputY, &setPointY, Kp, Ki, 0, DIRECT);
 
 void setup() {
   Serial.begin(115200);      //baud rate

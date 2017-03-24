@@ -7,7 +7,7 @@
 library(neuralnet)
 
 # read in the data
-setwd("C:/Users/Adam/OneDrive/Academics/Ball and Plate/Data Analysis")
+setwd("C:/Dir")
 d <- read.csv("RMS_ SteelBall_Training_LongLever.csv 2017-03-05 09;13;42 .csv", header = T)
 
 # get rid of an uneeded column

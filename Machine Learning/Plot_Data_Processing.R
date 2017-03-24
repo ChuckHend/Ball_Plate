@@ -6,7 +6,7 @@
 # indata must be formatted 0-2000ms for each iteration
 
 # directory where raw data saved
-setwd("c:/Users/Adam/OneDrive/Academics/Ball and Plate/Data Analysis")
+setwd("c:/Dir")
 
 # string for filename (outfile name included infile name)
 infile <- "GolfBall_NN Testing.csv"

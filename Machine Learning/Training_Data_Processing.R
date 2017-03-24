@@ -8,7 +8,7 @@
 library(stringr)
 
 # set working directory
-setwd("c:/Users/Adam/OneDrive/Academics/Ball and Plate/Data Analysis")
+setwd("c:/Dir")
 
 infile <- "GolfBall_TrainingScript.csv"
 # read in the data collected

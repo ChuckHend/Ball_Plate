@@ -14,10 +14,6 @@
 #define xPin 10   //x axis to pin 10
 #define yPin 9    //y axis to pin 9
 
-// Wiring Instructions for STMPE610 (touch screen controller)
-// SCL to I2C clock (#A5 on Arduinio Uno)
-// SDA to I2C data (#A4 on Uno)
-// tie MODE to GND and POWER CYCLE (there is no reset pin)
 Adafruit_STMPE610 touchPanel = Adafruit_STMPE610();
 
 //declare servos
@@ -26,8 +22,8 @@ Servo servoX, servoY;
 //some variables for calculations
 boolean inActive = true; //ball off plate by default
 
-double minPos        = -50, //constrain on servo output
-       maxPos        = 50,  //constrain on servo output
+double minPos        = -45, //constrain on servo output
+       maxPos        = 45,  //constrain on servo output
        setPointX     = 500, //center of X plane
        setPointY     = 500, //center of Y plane
        errorX        = 0,   //current x error
@@ -39,9 +35,9 @@ double minPos        = -50, //constrain on servo output
        dx            = 0,   //change in x position
        dy            = 0,   //change in y position
 
-       Kp           = 0.029,   //proportional gain [.027]
+       Kp           = 0.027,   //proportional gain [.027]
        Ki           = 0.00,    //integral gain [.03]
-       Kd           = -0.175,  //velocity gain [-0.195]
+       Kd           = -0.195,  //velocity gain [-0.195]
 
        outputX,               //output from xPID class
        outputY;               //output from yPID class
@@ -51,12 +47,12 @@ unsigned long t =         0,  //for fixing loop time
               circTime =  0,  //counting time since last circle move
               boxTime =   0;  //counting time since last box move
 
-int stableX = 10,
-    stableY = 10,
+int stableX = 5,
+    stableY = 5,
     dTermX,                 //x velocity response output
     dTermY,                 //y velocity response output
-    servoNeutralX  = 53,    //x axis horizontal, servo command
-    servoNeutralY  = 59,    //y axis horizontal, servo command
+    servoNeutralX  = 55,    //x axis, increase for CW rot.
+    servoNeutralY  = 42,    //y axis. increase for CW rot.
     servoRequest_x = 0,     //x servo, sum of PIDD responses
     servoRequest_y = 0,     //y servo, sum of PIDD responses
     i =              0,     //inactive plate counter
@@ -68,8 +64,8 @@ uint16_t x, y;              // for touchscreen variables
 uint8_t z;                  // touchscreen variables
 
 //PID class only used for Proportional and Integral
-PID PIDx(&currX, &outputX, &setPointX, Kp, Ki, 0, DIRECT);
-PID PIDy(&currY, &outputY, &setPointY, Kp, Ki, 0, DIRECT);
+PID PIDx(&currX, &outputX, &setPointX, Kp, Ki, 0, DIRECT);//MKI direct, MKII reverse
+PID PIDy(&currY, &outputY, &setPointY, Kp, Ki, 0, DIRECT);//MKI direct, MKII reverse
 
 void setup() {
   Serial.begin(115200);      //baud rate
@@ -77,14 +73,12 @@ void setup() {
 for(int a = 2; a < 8; a++){  //set pints 2-7 as input
   pinMode(a, INPUT);         //for program selection controller
 }
-  
   //init touchscreen
   Serial.flush();
   if (! touchPanel.begin()) {
     //Serial.println("ERROR: STMPE controller not found");
     while (1);
   }
-  
   //initialize servos
   //pulse width default is 544-2400
   //hitec is  750-2250μsec per datasheet
@@ -108,8 +102,8 @@ for(int a = 2; a < 8; a++){  //set pints 2-7 as input
 void loop() {
   t = millis();     //set time when loop starts
 
-
-  programSelect = getProgram();     //acquire ball action program from controller
+  //programSelect = getProgram();     //acquire ball action program from controller
+  programSelect = 1;
   runProgram(programSelect);        //set program from previous command
   PIDx.SetTunings(Kp, Ki, 0);
   PIDy.SetTunings(Kp, Ki, 0);
@@ -126,9 +120,8 @@ void loop() {
   dx      = (currX - lastX);   //x calculate velocity
   dy      = (currY - lastY);   //y calculate velocity
 
-//TODO METHOD 
-//second if statement to else section of 
-//the first if statement? 
+      // if system inactive
+      // force system error to zero 
   if(millis() - touched > 150){
     inActive = true;
     //Serial.println("inactive");
@@ -151,9 +144,8 @@ if(!inActive){
   i++;
   }
 }
-///END TODO METHOD
 
-//consider using the pid package
+  //consider using the pid package
   //calculate velocity and acceleration output terms
   //velocity and accel * respective gain values
   dTermX  = constrain(dx * Kd, minPos, maxPos);
@@ -187,18 +179,16 @@ else{
   else {servoY.write(servoNeutralY + constrain((dTermY), minPos, maxPos));}
 }//end servo writing
 
-  //call print diagnostcs function
-  //Serial.println(millis()-t);
+  //send iteration data to serial
   pyPrint();
 
   while ((millis() - t) < dt) { // Making sure the cycle time is equal to dt
     //do nothing
   }
-  //Serial.println(millis() - t);
 }//end main loop
 
 void pyPrint(){
-  //printing syntax for python visualization
+  //printing format for visualization
   Serial.print(setPointX);
   Serial.print(",");
   Serial.print(currX);
@@ -241,20 +231,20 @@ void doBox(){
     boxTime = millis();
     switch (j){
       case 0: //first step
-        setPointX = 700;
+        setPointX = 800;
         setPointY = 250;
         break;
       case 1:
-        setPointX = 700; //700
-        setPointY = 750; //750
+        setPointX = 800;
+        setPointY = 750;
         break;
       case 2:
-        setPointX = 200; //200
-        setPointY = 750; //750
+        setPointX = 300;
+        setPointY = 750;
         break;
       case 3:
-        setPointX = 200; //200
-        setPointY = 250; //250
+        setPointX = 300; 
+        setPointY = 250; 
         break;         
     }//end switch
     j++;
@@ -264,6 +254,7 @@ void doBox(){
 }//end box
 
 int getProgram(){
+  //get program selection from external controller
   if(digitalRead(2) == 1)
     {
     return 1;          //reset setpoint
@@ -327,9 +318,10 @@ void runProgram(int program){
 }//end runProgram
 
 void printDiagnostics() {
-  //comment out unnecessary lines
-  //Serial.print(",Time:,");
-  //Serial.print(millis() / 1000);\
+  //Used for controller debug
+  
+//  Serial.print(",Time:,");
+//  Serial.print(millis() / 1000);\
 //  Serial.print(,"Z,");
 //  Serial.print(z);
 //  Serial.print("Z:");  Serial.print("\t");
@@ -344,13 +336,13 @@ void printDiagnostics() {
   Serial.print(dTermX);  Serial.print("\t");
   Serial.print("dx");  Serial.print("\t");
   Serial.print(dx);   Serial.print("\t");
-    Serial.print("Y_Position");  Serial.print("\t");
-    Serial.print(currY);  Serial.print("\t");
-    Serial.print("PIDoutY");  Serial.print("\t");
-    Serial.print(outputY);  Serial.print("\t");
-    Serial.print("dTermY");  Serial.print("\t");
-    Serial.print(dTermY);  Serial.print("\t");
-  //  Serial.print("dy");  Serial.print("\t");
-  //  Serial.print(dy);  Serial.print("\t");
+  Serial.print("Y_Position");  Serial.print("\t");
+  Serial.print(currY);  Serial.print("\t");
+  Serial.print("PIDoutY");  Serial.print("\t");
+  Serial.print(outputY);  Serial.print("\t");
+  Serial.print("dTermY");  Serial.print("\t");
+  Serial.print(dTermY);  Serial.print("\t");
+  Serial.print("dy");  Serial.print("\t");
+  Serial.print(dy);  Serial.print("\t");
 Serial.println();
 }//end printDiagnostics

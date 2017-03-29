@@ -102,8 +102,8 @@ for(int a = 2; a < 8; a++){  //set pints 2-7 as input
 void loop() {
   t = millis();     //set time when loop starts
 
-  //programSelect = getProgram();     //acquire ball action program from controller
-  programSelect = 1;
+  programSelect = getProgram();     //acquire ball action program from controller
+  //programSelect = 1;              //disable controller, keep SP default
   runProgram(programSelect);        //set program from previous command
   PIDx.SetTunings(Kp, Ki, 0);
   PIDy.SetTunings(Kp, Ki, 0);
